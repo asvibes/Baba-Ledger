@@ -212,7 +212,7 @@ def _run_pipeline(job_id: str, pdf_path: str, workspace: JobWorkspace):
 
         # --- Stage 6/7: metadata + clause detection ---
         metadata = metadata_extraction.extract_metadata(full_text, profile)
-        clauses = clause_detection.detect_clauses(full_text, profile)
+        clauses = clause_detection.detect_clauses(cleaned_pages, profile)
 
         # --- Stage 8: chunked summary ---
         _set_stage(job_id, STAGE_SUMMARY)
