@@ -12,6 +12,23 @@ PROFILE = {
         r"scope\s*of\s*work",
         r"completion\s*(timeline|date|period)\s*[:\-]",
     ],
+    
+    "fields": [
+    "Work Order Number",
+    "Project Name",
+    "Contractor",
+    "Completion Timeline",
+    "Scope of Work",
+],
+
+"field_patterns": {
+    "Work Order Number": r"work\s*order\s*(no\.?|number)\s*[:\-]?\s*(.+)",
+    "Project Name": r"(project\s*name|project)\s*[:\-]?\s*(.+)",
+    "Contractor": r"(contractor|agency|vendor)\s*[:\-]?\s*(.+)",
+    "Completion Timeline": r"completion\s*(timeline|date|period)\s*[:\-]?\s*(.+)",
+    "Scope of Work": r"scope\s*of\s*work\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "work_order_number": "high",
         "project_name": "medium",
