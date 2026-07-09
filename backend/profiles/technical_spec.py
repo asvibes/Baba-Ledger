@@ -22,6 +22,29 @@ PROFILE = {
         r"\biso\s*\d+\b",
         r"grade\s*[:\-]?\s*[a-z0-9]+",
     ],
+    
+    "fields": [
+    "Applicable Standards",
+    "Material Specifications",
+    "Grade Class Information",
+    "Construction Requirements",
+    "Testing Inspection Requirements",
+    "Safety Requirements",
+    "Quality Control Requirements",
+    "Acceptance Criteria",
+],
+
+"field_patterns": {
+    "Applicable Standards": r"(standard|code|specification|is|astm|iso)\s*[:\-]?\s*(.+)",
+    "Material Specifications": r"(material|specification|composition)\s*[:\-]?\s*(.+)",
+    "Grade Class Information": r"(grade|class)\s*[:\-]?\s*(.+)",
+    "Construction Requirements": r"(construction|installation|fabrication)\s*[:\-]?\s*(.+)",
+    "Testing Inspection Requirements": r"(testing|inspection|test\s*requirement)\s*[:\-]?\s*(.+)",
+    "Safety Requirements": r"(safety|safety\s*requirement)\s*[:\-]?\s*(.+)",
+    "Quality Control Requirements": r"(quality\s*control|qc)\s*[:\-]?\s*(.+)",
+    "Acceptance Criteria": r"(acceptance|acceptance\s*criteria|approval)\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "applicable_standards": "high",
         "material_specifications": "high",
