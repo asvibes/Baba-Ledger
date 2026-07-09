@@ -12,6 +12,25 @@ PROFILE = {
         r"material\s*delivered",
         r"received\s*by\s*[:\-]",
     ],
+    
+    "fields": [
+    "Challan Number",
+    "Delivery Date",
+    "Supplier",
+    "Receiver",
+    "Vehicle Number",
+    "Items Delivered",
+],
+
+"field_patterns": {
+    "Challan Number": r"challan\s*(no\.?|number)\s*[:\-]?\s*(.+)",
+    "Delivery Date": r"delivery\s*date\s*[:\-]?\s*(.+)",
+    "Supplier": r"(supplier|from)\s*[:\-]?\s*(.+)",
+    "Receiver": r"(receiver|to)\s*[:\-]?\s*(.+)",
+    "Vehicle Number": r"vehicle\s*(no\.?|number)\s*[:\-]?\s*(.+)",
+    "Items Delivered": r"(item|description)\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "challan_number": "high",
         "vendor": "medium",
