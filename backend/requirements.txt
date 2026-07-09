@@ -1,0 +1,19 @@
+# Production dependencies (per PRD Section 11)
+flask>=3.0
+pymupdf>=1.24        # PDF text extraction, search, highlighting
+easyocr>=1.7          # OCR engine
+transformers>=4.40    # facebook/bart-large-cnn (summarization), dslim/bert-base-NER
+sentence-transformers>=2.7  # all-MiniLM-L6-v2 embeddings
+keybert>=0.8          # keyword scoring signal
+torch>=2.2            # required by transformers/sentence-transformers/easyocr
+
+# Dev/test
+pytest>=8.0
+
+# --- Sandbox substitution note ---
+# This prototype/spine was built and tested in an environment without
+# internet access, so PyMuPDF and EasyOCR could not be installed there.
+# pypdf and Tesseract were used as drop-in stand-ins for validation only
+# (see pipeline/ingestion.py and prototypes/searchable_pdf_prototype/).
+# Install the packages above on a machine with network access before
+# running the real pipeline.
