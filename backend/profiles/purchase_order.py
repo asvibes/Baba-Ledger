@@ -13,6 +13,25 @@ PROFILE = {
         r"unit\s*price\s*[:\-]",
         r"delivery\s*date\s*[:\-]",
     ],
+    
+    "fields": [
+    "PO Number",
+    "Vendor",
+    "Material Details",
+    "Quantity",
+    "Unit Price",
+    "Delivery Date",
+],
+
+"field_patterns": {
+    "PO Number": r"po\s*(no\.?|number)\s*[:\-]?\s*(.+)",
+    "Vendor": r"(vendor|supplier)\s*[:\-]?\s*(.+)",
+    "Material Details": r"(material|item|description|product)\s*[:\-]?\s*(.+)",
+    "Quantity": r"quantity\s*[:\-]?\s*(.+)",
+    "Unit Price": r"unit\s*price\s*[:\-]?\s*(.+)",
+    "Delivery Date": r"delivery\s*date\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "po_number": "high",
         "vendor": "medium",
