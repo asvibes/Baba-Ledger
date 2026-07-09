@@ -74,3 +74,7 @@ class ModelLoadingError(PipelineError):
 class ReportGenerationError(PipelineError):
     status_code = 500
     user_message = "The document was analyzed, but the report could not be generated. Please try again."
+    
+class HighlightingError(PipelineError):
+    status_code = 500
+    user_message = "The document was analyzed, but the highlighted PDF could not be generated. Please try again."

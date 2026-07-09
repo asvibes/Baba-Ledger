@@ -27,7 +27,7 @@ import fitz  # PyMuPDF
 
 from . import ocr as ocr_module
 from . import page_router
-from ..utils.errors import ReportGenerationError
+from ..utils.errors import HighlightingError
 
 # Below this ratio, a fuzzy match against OCR'd text on a scanned page is
 # considered unreliable and the highlight is skipped for that page rather
@@ -144,7 +144,7 @@ def highlight_pdf(pdf_path: str, highlights: list, page_map: dict, out_path: str
     try:
         doc = fitz.open(pdf_path)
     except Exception as e:
-        raise ReportGenerationError() from e
+        raise HighlightingError() from e
 
     try:
         routing = [

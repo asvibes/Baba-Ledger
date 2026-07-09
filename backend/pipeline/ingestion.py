@@ -6,7 +6,7 @@ protection, corruption) before anything downstream touches it.
 """
 
 from dataclasses import dataclass
-
+from pathlib import Path
 from .. import config
 from ..utils.errors import (
     CorruptedPDFError,
@@ -45,6 +45,43 @@ def ingest_upload(file_path: str, original_filename: str, size_bytes: int) -> In
         page_count=page_count,
     )
 
+def validate_upload(file_storage, workspace_path: str) -> tuple[int, str]:
+    """
+    Save uploaded Flask FileStorage and run Stage-1 validation.
+    Returns (page_count, saved_file_path).
+    """
+
+    safe_name = sanitize_filename(file_storage.filename or "upload.pdf")
+
+    save_path = str(Path(workspace_path) / safe_name)
+
+    file_storage.save(save_path)
+
+    size_bytes = Path(save_path).stat().st_size
+
+    doc = ingest_upload(
+        save_path,
+        file_storage.filename or "upload.pdf",
+        size_bytes,
+    )
+
+    return doc.page_count, doc.file_path
+
+
+def extract_raw_page_texts(pdf_path: str) -> list[str]:
+    """
+    Extract raw text from every PDF page.
+    """
+
+    import pypdf
+
+    reader = pypdf.PdfReader(pdf_path)
+
+    return [
+        page.extract_text() or ""
+        for page in reader.pages
+    ]
+
 
 def _open_and_count_pages(file_path: str) -> int:
     """
@@ -69,6 +106,7 @@ def _open_and_count_pages(file_path: str) -> int:
     """
     import pypdf
     from pypdf.errors import PdfReadError
+    
 
     try:
         reader = pypdf.PdfReader(file_path)
