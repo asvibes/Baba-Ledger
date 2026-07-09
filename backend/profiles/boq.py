@@ -13,6 +13,21 @@ PROFILE = {
         r"rate\s*[:\-]",
         r"estimated\s*cost\s*[:\-]",
     ],
+    
+    "fields": [
+    "Item Description",
+    "Quantity",
+    "Unit",
+    "Estimated Cost",
+],
+
+"field_patterns": {
+    "Item Description": r"item\s*(description)?\s*[:\-]?\s*(.+)",
+    "Quantity": r"quantity\s*[:\-]?\s*(.+)",
+    "Unit": r"unit\s*[:\-]?\s*(.+)",
+    "Estimated Cost": r"estimated\s*cost\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "item_description": "high",
         "quantity": "high",
