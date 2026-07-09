@@ -29,13 +29,13 @@ PROFILE = {
 ],
 
 "field_patterns": {
-    "Invoice Number": r"invoice\s*(no\.?|number)\s*[:\-]?\s*(.+)",
+    "Invoice Number": r"invoice\s*(?:no\.?|number)\s*[:\-]?\s*(.+)",
     "Vendor": r"vendor\s*[:\-]?\s*(.+)",
     "Client": r"bill\s*to\s*[:\-]?\s*(.+)",
     "Invoice Date": r"invoice\s*date\s*[:\-]?\s*(.+)",
     "Due Date": r"due\s*date\s*[:\-]?\s*(.+)",
     "Total Amount": r"total\s*amount\s*[:\-]?\s*(.+)",
-    "GST Tax": r"gst.*?[:\-]?\s*(.+)",
+    "GST Tax": r"gst(?:\s*tax)?\s*[:\-]?\s*(.+)",
     "Payment Terms": r"payment\s*terms\s*[:\-]?\s*(.+)",
 },
     
