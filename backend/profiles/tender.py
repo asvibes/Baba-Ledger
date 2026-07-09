@@ -14,6 +14,25 @@ PROFILE = {
         r"eligibility\s*criteria",
         r"scope\s*of\s*work",
     ],
+    
+    "fields": [
+    "Tender Number",
+    "Project Name",
+    "Client",
+    "Estimated Project Cost",
+    "Bid Submission Date",
+    "Completion Period",
+],
+
+"field_patterns": {
+    "Tender Number": r"tender\s*(no\.?|number|id)\s*[:\-]?\s*(.+)",
+    "Project Name": r"(project\s*name|project)\s*[:\-]?\s*(.+)",
+    "Client": r"(client|customer|owner)\s*[:\-]?\s*(.+)",
+    "Estimated Project Cost": r"(estimated\s*(project)?\s*cost|project\s*value|cost)\s*[:\-]?\s*(.+)",
+    "Bid Submission Date": r"bid\s*submission\s*date\s*[:\-]?\s*(.+)",
+    "Completion Period": r"(completion\s*period|duration|completion\s*time)\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "tender_number": "high",
         "project_name": "medium",
