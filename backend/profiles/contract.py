@@ -15,6 +15,23 @@ PROFILE = {
         r"term\s+of\s+this\s+agreement",
         r"termination\s+of\s+this\s+agreement",
     ],
+    
+    "fields": [
+    "Contract Number",
+    "Parties Involved",
+    "Effective Date",
+    "Contract Duration",
+    "Payment Terms",
+],
+
+"field_patterns": {
+    "Contract Number": r"contract\s*(no\.?|number)\s*[:\-]?\s*(.+)",
+    "Parties Involved": r"(party\s*a.*?|party\s*b.*?)",
+    "Effective Date": r"effective\s*date\s*[:\-]?\s*(.+)",
+    "Contract Duration": r"(term|duration)\s*[:\-]?\s*(.+)",
+    "Payment Terms": r"payment\s*terms\s*[:\-]?\s*(.+)",
+},
+    
     "metadata_fields": {
         "contract_number": "high",
         "parties_involved": "high",
