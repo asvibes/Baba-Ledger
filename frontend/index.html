@@ -1,162 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Baba's Ledger — Engineering Document Intelligence</title>
-<link rel="stylesheet" href="/css/style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>DocIntel — Document Analysis</title>
+<meta name="description" content="Invoices, tenders, contracts, work orders and more — read, understood, and summarized." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%23283B2D'/%3E%3Cpath d='M20 30c6-2 9-7 9-14-6 0-9 3-9 8 0-5-3-8-9-8 0 7 3 12 9 14Z' fill='%23F6F3EA'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-
 <div class="app-shell">
 
-  <!-- Sidebar (PRD 12.2) -->
-  <aside class="sidebar">
-    <div class="brand">
-      <span class="brand-mark">BL</span>
-      <span class="brand-name">Baba's&nbsp;Ledger</span>
+  <!-- ============ Header ============ -->
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="DocIntel — home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="26" height="26">
+          <path d="M20 30.5c6.4-2.3 9.8-7.4 9.8-14.8-6.6 0-10 3.1-10 8.3 0-5.2-3.4-8.3-10-8.3 0 7.4 3.4 12.5 9.8 14.8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M20 30.5V16" stroke="currentColor" stroke-width="1.3" opacity="0.6"/>
+        </svg>
+      </span>
+      <span class="brand-name">DocIntel</span>
+    </a>
+
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light / dark mode">
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <line x1="10" y1="1.2" x2="10" y2="3.4"/>
+          <line x1="10" y1="16.6" x2="10" y2="18.8"/>
+          <line x1="1.2" y1="10" x2="3.4" y2="10"/>
+          <line x1="16.6" y1="10" x2="18.8" y2="10"/>
+          <line x1="4.1" y1="4.1" x2="5.6" y2="5.6"/>
+          <line x1="14.4" y1="14.4" x2="15.9" y2="15.9"/>
+          <line x1="4.1" y1="15.9" x2="5.6" y2="14.4"/>
+          <line x1="14.4" y1="5.6" x2="15.9" y2="4.1"/>
+        </g>
+      </svg>
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M17 12.3A7.2 7.2 0 0 1 7.7 3 7.2 7.2 0 1 0 17 12.3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ============ Main (single page) ============ -->
+  <main class="main" id="top">
+
+    <!-- ---------- Hero + Analyze workspace ---------- -->
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Document analysis, unhurried</p>
+        <h1>A calm place to read the paperwork.</h1>
+        <p class="hero-sub">Invoices, tenders, contracts, work orders, purchase orders, BOQs, delivery challans, technical specs — dropped in one door, understood, and handed back with the one line that matters underlined.</p>
+      </div>
+    </section>
+
+    <!-- Upload stage -->
+    <div class="stage is-active" id="stage-upload">
+      <label class="dropzone" for="file-input">
+        <div class="dropzone-frame">
+          <svg class="dropzone-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <path d="M11 5h13l6 6v22a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M24 5v6h6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <p class="dropzone-title">Drop a PDF here, or click to choose</p>
+          <p class="dropzone-meta">PDF only · up to 50&nbsp;MB</p>
+        </div>
+      </label>
+      <input type="file" id="file-input" accept="application/pdf,.pdf" hidden />
+      <p class="error-line" id="upload-error" hidden></p>
     </div>
 
-    <nav class="nav">
-      <button class="nav-item is-active" data-view="analyze">
-        <span class="nav-tick">01</span> Analyze
-      </button>
-      <button class="nav-item" data-view="dashboard">
-        <span class="nav-tick">02</span> Dashboard
-      </button>
-      <button class="nav-item" data-view="about">
-        <span class="nav-tick">03</span> About
-      </button>
-    </nav>
+    <!-- Processing stage -->
+    <div class="stage" id="stage-processing">
+      <div class="processing-card">
+        <p class="processing-file"></p>
 
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light and dark mode">
-      <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
-      <span class="theme-toggle-label">Dark mode</span>
-    </button>
-  </aside>
-
-  <main class="main">
-
-    <!-- ANALYZE VIEW -->
-    <section id="view-analyze" class="view is-active">
-
-      <header class="view-header">
-        <h1>Analyze a document</h1>
-        <p class="view-sub">Invoices, tenders, contracts, work orders, purchase orders, BOQs, delivery challans, technical specs.</p>
-      </header>
-
-      <!-- Upload stage -->
-      <div id="stage-upload" class="stage is-active">
-        <label for="file-input" id="dropzone" class="dropzone">
-          <div class="dropzone-frame">
-            <div class="dropzone-corner tl"></div>
-            <div class="dropzone-corner tr"></div>
-            <div class="dropzone-corner bl"></div>
-            <div class="dropzone-corner br"></div>
-            <svg class="dropzone-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M24 6v24m0-24 9 9m-9-9-9 9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M8 32v6a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <p class="dropzone-title">Drop a PDF here, or click to browse</p>
-            <p class="dropzone-meta">PDF only · up to 50&nbsp;MB · up to 200 pages</p>
-          </div>
-        </label>
-        <input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
-        <p id="upload-error" class="error-line" hidden></p>
+        <ol class="stage-list" id="stage-list">
+          <li data-stage="Reading PDF">
+            <span class="stage-node">
+              <span class="stage-node-ring"></span>
+              <svg viewBox="0 0 20 20" class="stage-icon"><path d="M6 2.5h6l3 3v12h-9z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 2.5v3h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 20 20" class="stage-check"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stage-copy">
+              <span class="stage-label">Document received</span>
+              <span class="stage-detail">Reading pages and file structure</span>
+            </span>
+          </li>
+          <li data-stage="Performing OCR">
+            <span class="stage-node">
+              <span class="stage-node-ring"></span>
+              <svg viewBox="0 0 20 20" class="stage-icon"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M16.5 16.5l-3.6-3.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 20 20" class="stage-check"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stage-copy">
+              <span class="stage-label">Reading every page<span class="stage-extra" id="ocr-progress"></span></span>
+              <span class="stage-detail">Scanned pages get a closer look</span>
+            </span>
+          </li>
+          <li data-stage="Extracting Entities">
+            <span class="stage-node">
+              <span class="stage-node-ring"></span>
+              <svg viewBox="0 0 20 20" class="stage-icon"><path d="M10 2.5l1.8 3.9 4.2.5-3.1 2.9.8 4.2-3.7-2-3.7 2 .8-4.2-3.1-2.9 4.2-.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 20 20" class="stage-check"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stage-copy">
+              <span class="stage-label">Understanding document structure</span>
+              <span class="stage-detail">Finding dates, amounts, parties, clauses</span>
+            </span>
+          </li>
+          <li data-stage="Generating Summary">
+            <span class="stage-node">
+              <span class="stage-node-ring"></span>
+              <svg viewBox="0 0 20 20" class="stage-icon"><path d="M3 5h14M3 9h14M3 13h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 20 20" class="stage-check"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stage-copy">
+              <span class="stage-label">Writing the summary</span>
+              <span class="stage-detail">Distilling what actually matters</span>
+            </span>
+          </li>
+          <li data-stage="Building Report">
+            <span class="stage-node">
+              <span class="stage-node-ring"></span>
+              <svg viewBox="0 0 20 20" class="stage-icon"><path d="M4 16V9l3-2 3 2 3-2 3 2v7z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 20 20" class="stage-check"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stage-copy">
+              <span class="stage-label">Preparing your report</span>
+              <span class="stage-detail">Highlighting the sentences that count</span>
+            </span>
+          </li>
+          <li data-stage="Done">
+            <span class="stage-node">
+              <span class="stage-node-ring"></span>
+              <svg viewBox="0 0 20 20" class="stage-icon"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 20 20" class="stage-check"><path d="M5 10.5l3 3 7-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stage-copy">
+              <span class="stage-label">Ready</span>
+              <span class="stage-detail">Your analysis is complete</span>
+            </span>
+          </li>
+        </ol>
       </div>
+    </div>
 
-      <!-- Processing stage (PRD 12.1) -->
-      <div id="stage-processing" class="stage">
-        <div class="processing-card">
-          <p class="processing-file"></p>
-          <ol id="stage-list" class="stage-list">
-            <li data-stage="Reading PDF">Reading PDF</li>
-            <li data-stage="Performing OCR">Performing OCR<span id="ocr-progress" class="stage-extra"></span></li>
-            <li data-stage="Extracting Entities">Extracting entities</li>
-            <li data-stage="Generating Summary">Generating summary</li>
-            <li data-stage="Building Report">Building report</li>
-            <li data-stage="Done">Done</li>
-          </ol>
+    <!-- Error stage -->
+    <div class="stage" id="stage-error">
+      <div class="error-card">
+        <p class="error-card-title">This document couldn&rsquo;t be analyzed</p>
+        <p class="error-card-message" id="error-message"></p>
+        <button class="btn btn-primary" id="error-retry">Try again</button>
+      </div>
+    </div>
+
+    <!-- Results stage -->
+    <div class="stage" id="stage-results">
+      <div class="results-header">
+        <div>
+          <h2 class="results-doctype" id="result-doctype">&nbsp;</h2>
+          <span class="stamp" id="result-strength">&nbsp;</span>
+        </div>
+        <div class="results-actions">
+          <a class="btn btn-secondary" id="download-highlighted" href="#" download>
+            <svg viewBox="0 0 16 16" class="btn-icon"><path d="M8 2v8m0 0 3-3m-3 3-3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5V12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            Highlighted PDF
+          </a>
+          <a class="btn btn-secondary" id="download-report" href="#" download>
+            <svg viewBox="0 0 16 16" class="btn-icon"><path d="M8 2v8m0 0 3-3m-3 3-3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12v1.5A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5V12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+            Analysis Report
+          </a>
         </div>
       </div>
 
-      <!-- Error stage -->
-      <div id="stage-error" class="stage">
-        <div class="error-card">
-          <p class="error-card-title">This document could not be processed</p>
-          <p id="error-message" class="error-card-message"></p>
-          <button id="error-retry" class="btn btn-primary">Try another document</button>
+      <div class="card" style="margin-bottom:18px;">
+        <p class="card-title">Summary</p>
+        <p class="card-body" id="result-summary"></p>
+      </div>
+
+      <div class="results-grid">
+        <div class="card">
+          <p class="card-title">Extracted details</p>
+          <dl class="metadata-list" id="result-metadata"></dl>
+        </div>
+        <div class="card">
+          <p class="card-title">Business clauses</p>
+          <ul class="clause-list" id="result-clauses"></ul>
         </div>
       </div>
 
-      <!-- Results stage -->
-      <div id="stage-results" class="stage">
-        <div class="results-header">
-          <div>
-            <p class="results-doctype" id="result-doctype">—</p>
-            <span id="result-strength" class="stamp">STRENGTH</span>
-          </div>
-          <div class="results-actions">
-            <a id="download-highlighted" class="btn btn-secondary" href="#" download>Highlighted PDF</a>
-            <a id="download-report" class="btn btn-primary" href="#" download>Analysis Report</a>
-          </div>
-        </div>
+      <p class="results-footnote" id="result-highlight-count"></p>
+      <button class="btn btn-ghost" id="start-over">&larr; Analyze another document</button>
+    </div>
 
-        <div class="results-grid">
-          <div class="card">
-            <h2 class="card-title">Executive summary</h2>
-            <p id="result-summary" class="card-body"></p>
-          </div>
-
-          <div class="card">
-            <h2 class="card-title">Extracted metadata</h2>
-            <dl id="result-metadata" class="metadata-list"></dl>
-          </div>
-
-          <div class="card">
-            <h2 class="card-title">Business clauses</h2>
-            <ul id="result-clauses" class="clause-list"></ul>
-          </div>
-
-          <div class="card card-muted">
-            <h2 class="card-title">Highlights</h2>
-            <p id="result-highlight-count" class="card-body"></p>
-          </div>
-        </div>
-
-        <button id="start-over" class="btn btn-ghost">Analyze another document</button>
-      </div>
-
-    </section>
-
-    <!-- DASHBOARD VIEW (placeholder — no persistent storage per PRD 11) -->
-    <section id="view-dashboard" class="view">
-      <header class="view-header">
-        <h1>Dashboard</h1>
-        <p class="view-sub">Version 1 keeps no document history — each analysis exists only for the current session, then everything is deleted.</p>
-      </header>
-      <div class="empty-state">
-        <p>Nothing to show yet.</p>
-        <p class="empty-sub">Run an analysis and its results will appear here for this session only.</p>
-      </div>
-    </section>
-
-    <!-- ABOUT VIEW -->
-    <section id="view-about" class="view">
-      <header class="view-header">
-        <h1>About Baba's Ledger</h1>
-        <p class="view-sub">An engineering document intelligence platform, not a generic PDF summarizer.</p>
-      </header>
-      <div class="about-body">
-        <p>Baba's Ledger reads the business and engineering documents that drive construction and procurement decisions — invoices, tenders, contracts, work orders, purchase orders, bills of quantities, delivery challans, and technical specifications — and surfaces what actually matters: amounts, deadlines, penalty clauses, and material specifications.</p>
-        <p>Every document is processed locally and deleted after you download your results. Nothing is stored permanently.</p>
-      </div>
+    <!-- ---------- About (always visible, single page) ---------- -->
+    <section class="about" id="about">
+      <p class="about-line">DocIntel is a document analysis tool that helps extract key information, identify important clauses, and generate concise summaries from business documents.</p>
     </section>
 
   </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 DocIntel. All rights reserved.</p>
+    <p class="footer-meta">DocIntel &middot; Document Analysis &middot; Version 1.0</p>
+  </footer>
 </div>
 
-<script src="/js/theme.js"></script>
+<script src="/js/app.js"></script>
 <script src="/js/upload.js"></script>
 <script src="/js/progress.js"></script>
 </body>
