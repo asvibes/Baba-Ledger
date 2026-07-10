@@ -71,20 +71,20 @@ a { color: inherit; }
 .app-shell { min-height: 100vh; }
 
 .main {
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 8px 32px 80px;
+  padding: 24px 32px 88px;
 }
 
 /* ---------- header ---------- */
 
 .topbar {
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 32px 6px;
+  padding: 26px 32px 10px;
 }
 
 .brand {
@@ -149,10 +149,11 @@ a { color: inherit; }
 /* ---------- hero ---------- */
 
 .hero {
-  padding: 40px 0 44px;
+  padding: 56px 0 60px;
+  text-align: center;
 }
 
-.hero-text { max-width: 640px; }
+.hero-text { max-width: 680px; margin: 0 auto; }
 
 .eyebrow {
   font-family: var(--font-mono);
@@ -177,7 +178,7 @@ a { color: inherit; }
   font-size: 15px;
   line-height: 1.7;
   max-width: 52ch;
-  margin: 0;
+  margin: 0 auto;
 }
 
 /* ---------- stages ---------- */
@@ -198,7 +199,7 @@ a { color: inherit; }
   position: relative;
   border: 1.5px dashed var(--rule);
   border-radius: var(--radius-lg);
-  padding: clamp(40px, 7vw, 64px) 24px;
+  padding: clamp(48px, 7vw, 64px) 24px;
   text-align: center;
   background: var(--paper-raised);
   box-shadow: 0 1px 3px var(--shadow);
@@ -371,13 +372,13 @@ a { color: inherit; }
 .stamp.medium { color: var(--honey); }
 .stamp.low { color: var(--coral); }
 
-.results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 
 .card {
   border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
   background: var(--paper-raised);
-  padding: 22px;
+  padding: 28px;
   box-shadow: 0 1px 3px var(--shadow);
 }
 
@@ -433,12 +434,12 @@ a { color: inherit; }
 /* ---------- responsive ---------- */
 
 @media (max-width: 860px) {
-  .hero { padding: 20px 0 32px; }
+  .hero { padding: 32px 0 36px; }
 }
 
 @media (max-width: 720px) {
-  .topbar { padding: 18px 20px 4px; }
-  .main { padding: 8px 20px 64px; }
+  .topbar { padding: 20px 20px 6px; }
+  .main { padding: 16px 20px 64px; }
   .results-grid { grid-template-columns: 1fr; }
   .results-header { flex-direction: column; }
   .results-actions { width: 100%; }

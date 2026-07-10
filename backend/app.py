@@ -21,6 +21,31 @@ fine for a single-instance, single-primary-user deployment (PRD 11 time
 budget note) but would need to move to Redis/DB before running behind
 more than one worker process.
 
+--- Security hardening (added) ---
+  - /api/analyze is rate-limited to 5 requests/minute per IP via
+    Flask-Limiter. No other route is limited (status polling, result,
+    downloads, and cleanup are all exempt) so an active job never gets
+    throttled mid-flight.
+  - app.config["MAX_CONTENT_LENGTH"] rejects oversized request bodies
+    at the Flask/Werkzeug layer, before any file is read into memory,
+    using the existing config.MAX_FILE_SIZE_MB (kept in sync with the
+    frontend's own "up to 50 MB" copy and client-side check).
+  - The upload's file extension is checked against
+    config.ACCEPTED_EXTENSIONS up front (cheap, fails fast) in addition
+    to whatever deeper, content-based validation
+    pipeline.ingestion.validate_upload performs.
+  - Filenames are passed through werkzeug's secure_filename before use.
+  - Temp files are now cleaned up on pipeline failure too (previously
+    only cleaned on validation failure or after a successful job's
+    files were downloaded and explicitly deleted by the frontend).
+
+Like Flask-Limiter's default in-memory store note above: this uses an
+in-memory limiter store, which matches the same single-instance
+tradeoff already accepted for `_jobs` below. Move to a shared store
+(e.g. Redis, via storage_uri="redis://...") before running more than
+one worker process, or the per-IP counts won't be shared across
+workers.
+
 --------------------------------------------------------------------
 Interfaces this module expects from not-yet-built pipeline modules
 (documented here so those modules can be built independently and drop
@@ -79,6 +104,9 @@ import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, request, send_file, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.utils import secure_filename
 
 from . import config
 from .models import model_loader
@@ -102,6 +130,22 @@ from .storage.temp_manager import JobWorkspace
 from .utils.errors import PipelineError
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
+
+# --- Security: reject oversized request bodies before reading them in.
+# Kept in sync with config.MAX_FILE_SIZE_MB, which is also what the
+# frontend displays ("up to 50 MB") and checks client-side, so the
+# limit a user sees in the UI matches what the server actually enforces.
+app.config["MAX_CONTENT_LENGTH"] = config.MAX_FILE_SIZE_MB * 1024 * 1024
+
+# --- Security: rate limit uploads only. Every other route (status
+# polling, result fetch, downloads, cleanup) is left unlimited by not
+# decorating it below and by setting default_limits=[] here.
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    storage_uri="memory://",
+    default_limits=[],
+)
 
 # --- In-memory job state (PRD 11: no database in Version 1) ---
 # Guarded by _jobs_lock since Flask's dev/threaded server may access
@@ -142,15 +186,31 @@ def serve_index():
 
 
 @app.route("/api/analyze", methods=["POST"])
+@limiter.limit("5 per minute")
 def analyze():
     """
     Stage 1 (Upload PDF) + kicks off Stages 2-11 in a background thread.
     Returns immediately with a job_id the frontend polls for status.
+
+    Rate-limited to 5 requests/minute per IP (see limiter above). Every
+    other endpoint in this file is intentionally left undecorated.
     """
     if "file" not in request.files:
         return jsonify(error="No file uploaded under the 'file' field."), 400
 
     upload = request.files["file"]
+
+    # --- Security: fail fast on an obviously unsupported extension,
+    # before allocating a workspace or touching the pipeline. This is
+    # a cheap first check; pipeline.ingestion.validate_upload still
+    # does the deeper, content-based validation (page count, corruption,
+    # password protection, true file size) below.
+    safe_filename = secure_filename(upload.filename or "")
+    extension = Path(safe_filename).suffix.lower()
+    if extension not in config.ACCEPTED_EXTENSIONS:
+        accepted = ", ".join(sorted(config.ACCEPTED_EXTENSIONS))
+        return jsonify(error=f"Unsupported file type. Only {accepted} files are accepted."), 400
+
     job_id = uuid.uuid4().hex
     workspace = JobWorkspace(job_id)
 
@@ -182,6 +242,12 @@ def _run_pipeline(job_id: str, pdf_path: str, workspace: JobWorkspace):
     Stages 2-11 (PRD Section 5), run off the request thread. Any
     PipelineError is caught and recorded on the job instead of crashing
     the worker (PRD 14.4: never fail silently, never crash outright).
+
+    On failure, the workspace is cleaned up immediately rather than
+    waiting for the frontend's "Try again" / "Analyze another document"
+    flow to send the DELETE that would otherwise trigger it — this way,
+    temp files never linger past the job that produced them if the
+    user closes the tab on the error screen.
     """
     try:
         # --- Stage 2/3: per-page text-vs-scanned routing + OCR ---
@@ -259,6 +325,7 @@ def _run_pipeline(job_id: str, pdf_path: str, workspace: JobWorkspace):
 
     except PipelineError as e:
         _fail_job(job_id, e)
+        workspace.cleanup()
     except Exception:
         # Unexpected bug: still surface a meaningful error rather than
         # hanging the frontend on "Building Report" forever (PRD 14.4).
@@ -270,6 +337,7 @@ def _run_pipeline(job_id: str, pdf_path: str, workspace: JobWorkspace):
                 error={"message": "An unexpected error occurred while analyzing this document.",
                        "status_code": 500},
             )
+        workspace.cleanup()
 
 
 @app.route("/api/analyze/<job_id>/status", methods=["GET"])
@@ -341,6 +409,25 @@ def cleanup_job(job_id: str):
 @app.errorhandler(PipelineError)
 def handle_pipeline_error(error: PipelineError):
     return jsonify(error=error.user_message), error.status_code
+
+
+@app.errorhandler(413)
+def handle_request_too_large(error):
+    """
+    Raised by Werkzeug itself when a request body exceeds
+    app.config["MAX_CONTENT_LENGTH"], before the route body even runs.
+    Mirrors the wording already shown client-side in upload.js so the
+    message is consistent whichever layer catches an oversized file.
+    """
+    return jsonify(error=f"This file is larger than the {config.MAX_FILE_SIZE_MB} MB limit."), 413
+
+
+@app.errorhandler(429)
+def handle_rate_limit_exceeded(error):
+    """Raised by Flask-Limiter when the 5-per-minute upload limit is hit."""
+    return jsonify(
+        error="Too many uploads from this IP address. Please wait a minute and try again."
+    ), 429
 
 
 def create_app() -> Flask:
