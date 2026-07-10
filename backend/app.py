@@ -78,7 +78,7 @@ import traceback
 import uuid
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, send_from_directory
 
 from . import config
 from .models import model_loader
@@ -101,7 +101,7 @@ from .profiles import get_profile
 from .storage.temp_manager import JobWorkspace
 from .utils.errors import PipelineError
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../frontend", static_url_path="")
 
 # --- In-memory job state (PRD 11: no database in Version 1) ---
 # Guarded by _jobs_lock since Flask's dev/threaded server may access
@@ -135,6 +135,10 @@ def _fail_job(job_id: str, error: PipelineError):
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify(status="ok")
+
+@app.route("/")
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
 
 
 @app.route("/api/analyze", methods=["POST"])

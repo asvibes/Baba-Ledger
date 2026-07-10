@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baba's Ledger — Engineering Document Intelligence</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Sidebar (PRD 12.2) -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">BL</span>
+      <span class="brand-name">Baba's&nbsp;Ledger</span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item is-active" data-view="analyze">
+        <span class="nav-tick">01</span> Analyze
+      </button>
+      <button class="nav-item" data-view="dashboard">
+        <span class="nav-tick">02</span> Dashboard
+      </button>
+      <button class="nav-item" data-view="about">
+        <span class="nav-tick">03</span> About
+      </button>
+    </nav>
+
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light and dark mode">
+      <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+      <span class="theme-toggle-label">Dark mode</span>
+    </button>
+  </aside>
+
+  <main class="main">
+
+    <!-- ANALYZE VIEW -->
+    <section id="view-analyze" class="view is-active">
+
+      <header class="view-header">
+        <h1>Analyze a document</h1>
+        <p class="view-sub">Invoices, tenders, contracts, work orders, purchase orders, BOQs, delivery challans, technical specs.</p>
+      </header>
+
+      <!-- Upload stage -->
+      <div id="stage-upload" class="stage is-active">
+        <label for="file-input" id="dropzone" class="dropzone">
+          <div class="dropzone-frame">
+            <div class="dropzone-corner tl"></div>
+            <div class="dropzone-corner tr"></div>
+            <div class="dropzone-corner bl"></div>
+            <div class="dropzone-corner br"></div>
+            <svg class="dropzone-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 6v24m0-24 9 9m-9-9-9 9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 32v6a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="dropzone-title">Drop a PDF here, or click to browse</p>
+            <p class="dropzone-meta">PDF only · up to 50&nbsp;MB · up to 200 pages</p>
+          </div>
+        </label>
+        <input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
+        <p id="upload-error" class="error-line" hidden></p>
+      </div>
+
+      <!-- Processing stage (PRD 12.1) -->
+      <div id="stage-processing" class="stage">
+        <div class="processing-card">
+          <p class="processing-file"></p>
+          <ol id="stage-list" class="stage-list">
+            <li data-stage="Reading PDF">Reading PDF</li>
+            <li data-stage="Performing OCR">Performing OCR<span id="ocr-progress" class="stage-extra"></span></li>
+            <li data-stage="Extracting Entities">Extracting entities</li>
+            <li data-stage="Generating Summary">Generating summary</li>
+            <li data-stage="Building Report">Building report</li>
+            <li data-stage="Done">Done</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Error stage -->
+      <div id="stage-error" class="stage">
+        <div class="error-card">
+          <p class="error-card-title">This document could not be processed</p>
+          <p id="error-message" class="error-card-message"></p>
+          <button id="error-retry" class="btn btn-primary">Try another document</button>
+        </div>
+      </div>
+
+      <!-- Results stage -->
+      <div id="stage-results" class="stage">
+        <div class="results-header">
+          <div>
+            <p class="results-doctype" id="result-doctype">—</p>
+            <span id="result-strength" class="stamp">STRENGTH</span>
+          </div>
+          <div class="results-actions">
+            <a id="download-highlighted" class="btn btn-secondary" href="#" download>Highlighted PDF</a>
+            <a id="download-report" class="btn btn-primary" href="#" download>Analysis Report</a>
+          </div>
+        </div>
+
+        <div class="results-grid">
+          <div class="card">
+            <h2 class="card-title">Executive summary</h2>
+            <p id="result-summary" class="card-body"></p>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">Extracted metadata</h2>
+            <dl id="result-metadata" class="metadata-list"></dl>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">Business clauses</h2>
+            <ul id="result-clauses" class="clause-list"></ul>
+          </div>
+
+          <div class="card card-muted">
+            <h2 class="card-title">Highlights</h2>
+            <p id="result-highlight-count" class="card-body"></p>
+          </div>
+        </div>
+
+        <button id="start-over" class="btn btn-ghost">Analyze another document</button>
+      </div>
+
+    </section>
+
+    <!-- DASHBOARD VIEW (placeholder — no persistent storage per PRD 11) -->
+    <section id="view-dashboard" class="view">
+      <header class="view-header">
+        <h1>Dashboard</h1>
+        <p class="view-sub">Version 1 keeps no document history — each analysis exists only for the current session, then everything is deleted.</p>
+      </header>
+      <div class="empty-state">
+        <p>Nothing to show yet.</p>
+        <p class="empty-sub">Run an analysis and its results will appear here for this session only.</p>
+      </div>
+    </section>
+
+    <!-- ABOUT VIEW -->
+    <section id="view-about" class="view">
+      <header class="view-header">
+        <h1>About Baba's Ledger</h1>
+        <p class="view-sub">An engineering document intelligence platform, not a generic PDF summarizer.</p>
+      </header>
+      <div class="about-body">
+        <p>Baba's Ledger reads the business and engineering documents that drive construction and procurement decisions — invoices, tenders, contracts, work orders, purchase orders, bills of quantities, delivery challans, and technical specifications — and surfaces what actually matters: amounts, deadlines, penalty clauses, and material specifications.</p>
+        <p>Every document is processed locally and deleted after you download your results. Nothing is stored permanently.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/upload.js"></script>
+<script src="/js/progress.js"></script>
+</body>
+</html>
