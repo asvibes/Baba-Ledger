@@ -44,6 +44,16 @@ _INVISIBLE_RENDER_MODE = 3
 def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip().lower())
 
+def _bbox_to_quad(bbox: list) -> "fitz.Quad":
+    """
+    EasyOCR bounding boxes are ordered [top-left, top-right, bottom-right,
+    bottom-left] (clockwise from TL). fitz.Quad expects (ul, ur, ll, lr) -
+    i.e. bottom-left and bottom-right swapped relative to EasyOCR's order.
+    Passing EasyOCR's raw order straight into fitz.Quad produces a
+    self-intersecting quad, which PyMuPDF rejects with "bad quads entry".
+    """
+    tl, tr, br, bl = bbox
+    return fitz.Quad(fitz.Point(*tl), fitz.Point(*tr), fitz.Point(*bl), fitz.Point(*br))
 
 def _embed_invisible_text_layer(page, ocr_result: "ocr_module.OcrPageResult") -> None:
     """Insert each OCR fragment as invisible text at its recognized
@@ -113,7 +123,7 @@ def _highlight_on_scanned_page(page, ocr_result: "ocr_module.OcrPageResult", sen
     if not matched_fragments:
         return False
 
-    quads = [fitz.Quad([fitz.Point(x, y) for x, y in frag.bbox]) for frag in matched_fragments]
+    quads = [_bbox_to_quad(frag.bbox) for frag in matched_fragments]
     page.add_highlight_annot(quads)
     return True
 
@@ -172,7 +182,12 @@ def highlight_pdf(pdf_path: str, highlights: list, page_map: dict, out_path: str
         for item in highlights:
             sentence = getattr(item, "sentence", None)
             if sentence:
-                _place_highlight(doc, routing, scanned_ocr, sentence)
+                try:
+                    _place_highlight(doc, routing, scanned_ocr, sentence)
+                except Exception:
+                    # One malformed quad/fragment shouldn't sink the whole
+                    # highlighted PDF - skip this highlight, keep going.
+                    continue
 
         doc.save(out_path, garbage=4, deflate=True)
     finally:
